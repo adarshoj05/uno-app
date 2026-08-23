@@ -1,16 +1,38 @@
-# React + Vite
+# UNO Companion App
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A twist on UNO built for playing with friends and family — no physical deck required, and no ads.
 
-Currently, two official plugins are available:
+## The idea
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Each player's hand lives on their own phone. A tablet placed in the middle of the table displays the discard pile in real time, so everyone can see exactly what's playable — no more "wait, was that actually a valid move?" arguments. It also works as a backup whenever someone forgets to bring the physical cards.
 
-## React Compiler
+This is a personal project for playing with friends and family — not intended to be published or shipped publicly.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the Oxlint configuration
+- Phone-as-hand gameplay, tablet-as-shared-table display
+- Real-time sync across all connected devices
+- Full base UNO ruleset (Skip, Reverse, Draw Two, Wild, Wild Draw Four)
+- Smooth card animations (deal, flip, turn indicator)
+- No ads
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Tech stack
+
+- **Frontend:** React (Vite)
+- **Realtime sync:** Firebase Realtime DB or Supabase *(not finalized yet)*
+- **Animation:** Rive, via `@rive-app/react-canvas`
+
+## Status
+
+React + Vite scaffold is set up. Core game logic and realtime sync are in progress — see the Feature Checklist in the project's Notion DevLog for current progress.
+
+## Getting started
+
+```bash
+npm install
+npm run dev
+```
+
+## Docs
+
+Full architecture notes, data model, and the base rules flowchart live in the project's Notion DevLog.
