@@ -3,12 +3,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 const firebaseConfig = {
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'YOUR_PROJECT.firebaseapp.com',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT.appspot.com',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId: 'YOUR_APP_ID',
+  apiKey: "AIzaSyCcT427DwEAUhz3vZjaRJ7hiU7aH36M7fA",
+  authDomain: "uno-app-9a915.firebaseapp.com",
+  projectId: "uno-app-9a915",
+  storageBucket: "uno-app-9a915.firebasestorage.app",
+  messagingSenderId: "398650862278",
+  appId: "1:398650862278:web:6ce09d497f4ab44d68c5c7"
 };
 
 const app = initializeApp(firebaseConfig);

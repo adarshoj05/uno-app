@@ -1,122 +1,68 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// App.jsx
+// -----------------------------------------------------------------------
+// Top-level component. It only has two jobs:
+//   1. Make sure we're signed in to Firebase (anonymously) before
+//      rendering anything that touches Firestore — otherwise reads/
+//      writes would just get rejected by firestore.rules.
+//   2. Decide which "screen" to show: the lobby (no room yet), or
+//      once in a room, either the player's hand view or the shared
+//      table view, depending on which role this device picked.
+//
+// LobbyView, PlayerView, and TableView live in their own files (not
+// built yet) — this file only decides WHEN to show each one, it
+// doesn't contain any of their actual UI.
+// -----------------------------------------------------------------------
+
+import { useEffect, useState } from 'react';
+import { ensureSignedIn } from './firebase/config';
+import LobbyView from './views/LobbyView.jsx';
+import PlayerView from './views/PlayerView';
+import TableView from './views/TableView';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Becomes true once Firebase has actually confirmed we're signed
+  // in. Nothing that touches Firestore should render before this.
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+  // null until the person creates or joins a room. Once set, it's
+  // the room code everything else (PlayerView, TableView) needs to
+  // know which Firestore document to subscribe to.
+  const [roomCode, setRoomCode] = useState(null);
 
-      <div className="ticks"></div>
+  // Which screen THIS device should show once it's in a room —
+  // decided in the lobby when someone picks "I'm a player" vs
+  // "this is the table."
+  const [role, setRole] = useState(null); // 'player' | 'table'
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+  useEffect(() => {
+    ensureSignedIn().then(() => setIsSignedIn(true));
+  }, []);
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+  // Still waiting on Firebase — show basically nothing rather than a
+  // half-working screen that might try to read Firestore too early.
+  if (!isSignedIn) {
+    return <div className="loading">Connecting...</div>;
+  }
+
+  // No room joined/created yet — show the lobby. It's responsible for
+  // calling onJoin(code, role) once the person creates or joins one.
+  if (!roomCode) {
+    return (
+      <LobbyView
+        onJoin={(code, chosenRole) => {
+          setRoomCode(code);
+          setRole(chosenRole);
+        }}
+      />
+    );
+  }
+
+  // In a room now — render whichever screen matches this device's role.
+  return role === 'table' ? (
+    <TableView roomCode={roomCode} />
+  ) : (
+    <PlayerView roomCode={roomCode} />
+  );
 }
 
-export default App
+export default App;
